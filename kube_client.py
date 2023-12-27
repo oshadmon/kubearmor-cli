@@ -1,36 +1,54 @@
+import argparse
 import grpc
 import proto.kubearmor_pb2 as kubearmor_pb2
 import proto.kubearmor_pb2_grpc as kubearmor_pb2_grpc
 
 
-def run_client():
+def __create_connection(conn:str='localhost:50051')->kubearmor_pb2_grpc.LogServiceStub:
+    """
+    Based on connection information, create a channel and stub
+    """
     channel = grpc.insecure_channel('localhost:50051')
+    stub = kubearmor_pb2_grpc.LogServiceStub(channel)
 
-    # Create stubs
-    log_stub = kubearmor_pb2_grpc.LogServiceStub(channel)
-    push_log_stub = kubearmor_pb2_grpc.PushLogServiceStub(channel)
+    return stub
 
-    # HealthCheck example
-    health_check_response = log_stub.HealthCheck(kubearmor_pb2.RequestMessage(nonce=123))
-    print("HealthCheck Response:", health_check_response.Retval)
 
-    # WatchMessages example (not implemented in the server, just for demonstration)
-    messages_response = log_stub.WatchMessages(kubearmor_pb2.RequestMessage(nonce=456))
-    for message in messages_response:
-        print("Received Message:", message)
+def __health_check(stub:kubearmor_pb2_grpc.LogServiceStub):
+    """
+    Check connectivity to gRPC server
+    """
+    status = False
+    nonce_message = kubearmor_pb2.NonceMessage(nonce=15)
+    health_check_response = stub.HealthCheck(nonce_message)
 
-    # PushMessages example
-    push_message_response = push_log_stub.PushMessages(iter([kubearmor_pb2.Message()]))
-    print("PushMessages Response:", push_message_response.Retval)
+    if health_check_response.Retval == 15:
+        status = True
+    return status
 
-    # WatchLogs example
-    watch_logs_response = log_stub.WatchLogs(kubearmor_pb2.LogFilter(Filter="all"))
-    for log in watch_logs_response:
-        print("Received Log:", log)
 
-    # PushLogs example
-    push_logs_response = push_log_stub.PushLogs(iter([kubearmor_pb2.Log()]))
-    print("PushLogs Response:", push_logs_response.Retval)
+def run_client():
+    parse = argparse.ArgumentParser()
+    parse.add_argument("--conn", type=str, default='localhost:50051', help='Connection information')
+    args = parse.parse_args()
+
+    stub = __create_connection(conn=args.conn)
+
+    # check whether it's able to send a HealthCheck against server
+    status = __health_check(stub=stub)
+    if status is True:
+        print(f"Successfully sent a healthcheck message against gRPC server")
+    else:
+        print(f"Failed to send a healthcheck message against gRPC server")
+        exit(1)
+
+    request_message = kubearmor_pb2.RequestMessage(Filter='all')
+    watch_logs_response = stub.WatchLogs(request_message)
+
+    for entry in watch_logs_response:
+        print(str(entry))
+
+
 
 
 if __name__ == '__main__':

@@ -27,3 +27,17 @@ for file in `ls proto/` ; do python3 compile.py proto/${file} ; done
 python3 kube_server.py 
 ```
 
+5.Start Client - The client makes sure that healthcheck works and then 
+attempts to get regular data.  
+* Local Server 
+```shell
+python3 kube_client.py --conn localhost:50051
+```
+* Kubearmor Server 
+```shell
+# start port-forwarding 
+kubectl port-forward service/kubearmor 32769:32767 -n kubearmor
+
+# start AnyLog client
+python3 kube_client.py --conn 127.0.0.1:32769
+```
