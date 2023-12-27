@@ -45,8 +45,9 @@ def run_client():
     request_message = kubearmor_pb2.RequestMessage(Filter='all')
     watch_logs_response = stub.WatchLogs(request_message)
 
-    for entry in watch_logs_response:
-        print(str(entry))
+    # Returns Stack script
+    # for entry in watch_logs_response:
+    #     print(str(entry))
 
 
 

@@ -75,7 +75,7 @@ class LogService(kubearmor_pb2_grpc.LogServiceServicer):
                 response.Type = "MatchedPolicy"  # 13
                 response.Source = "/usr/bin/bash"  # 14
                 response.Operation = "Process"  # 15
-                response.Resource = f"/usr/bin/apt-get -y {random.choice(["curl", "update", "upgrade", "wget"])}"  # 16
+                response.Resource = f"/usr/bin/apt-get -y {random.choice(['curl', 'update', 'upgrade', 'wget'])}"  # 16
                 response.Data = "syscall=SYS_EXECVE"  # 17
 
             response.Result = random.choice(["Passed", "Failed"])  # 18
@@ -111,6 +111,8 @@ class PushLogService(kubearmor_pb2_grpc.PushLogServiceServicer):
             yield kubearmor_pb2.ReplyMessage(Retval=0)
 
 def serve():
+    print("Connection information: localhost:50051")
+
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
     kubearmor_pb2_grpc.add_LogServiceServicer_to_server(LogService(), server)
     kubearmor_pb2_grpc.add_PushLogServiceServicer_to_server(PushLogService(), server)
@@ -124,6 +126,7 @@ def serve():
     server.add_insecure_port('[::]:50051')
     server.start()
     server.wait_for_termination()
+
 
 if __name__ == '__main__':
     serve()
