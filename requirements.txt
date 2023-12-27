@@ -1,0 +1,4 @@
+# requirements.txt
+grpcio>=0.0
+grpcio-tools>=0.0
+grpcio-reflection>=0.0
