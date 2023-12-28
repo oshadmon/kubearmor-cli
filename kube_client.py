@@ -46,8 +46,8 @@ def run_client():
     watch_logs_response = stub.WatchLogs(request_message)
 
     # Returns Stack script
-    # for entry in watch_logs_response:
-    #     print(str(entry))
+    for entry in watch_logs_response:
+        print(str(entry))
 
 
 

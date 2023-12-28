@@ -36,20 +36,24 @@ class LogService(kubearmor_pb2_grpc.LogServiceServicer):
 
         response = kubearmor_pb2.Log()
 
+        response.Labels = "Labels Data"
+        response.ProcessName = "Process Test"
+
         # response.Labels = "Labels Data"
         # response.ProcessName = "Process Test"
 
         #response.serialized_data.extend(["test_val_1", "test_val_2", "test_val_3"])
 
         # Set response fields
+
         for _ in range (1):
             timestamp_int = time.time()
-            timestamp = datetime.datetime.fromtimestamp(timestamp_int).strftime('%Y-%m-%d %H:%M:%s.%f')
-            timestamp_int = int(timestamp_int)
+            # timestamp = datetime.datetime.fromtimestamp(timestamp_int).strftime('%Y-%m-%d %H:%M:%s.%f')
+            # timestamp_int = int(timestamp_int)
 
             if request.Filter in ["alert", "log", "all"]:
-                response.Timestamp = timestamp_int  # 1
-                response.UpdatedTime = timestamp  # 2
+                # response.Timestamp = timestamp_int  # 1
+                # response.UpdatedTime = timestamp  # 2
 
                 response.ClusterName = random.choice(["default", "kubearmor"])  # 3
                 response.HostName = "minikube"  # 4
@@ -80,14 +84,15 @@ class LogService(kubearmor_pb2_grpc.LogServiceServicer):
 
             response.Result = random.choice(["Passed", "Failed"])  # 18
 
-            if request.Filter in ["alert", "all"]:
-                response.PolicyName = "block-pkg-mgmt-tools-exec"  # 13
-                response.Severity = random.randrange(0, 4)  # 14
-                response.Action = "Audit (Block)"  # 22
-                response.Enforcer = "eBPF Monitor"  # 28
+            #if request.Filter in ["alert", "all"]:
+                #response.PolicyName = "block-pkg-mgmt-tools-exec"  # 13
+                #response.Severity = random.randrange(0, 4)  # 14
+                #response.Action = "Audit (Block)"  # 22
+                #response.Enforcer = "eBPF Monitor"  # 28
+
 
             yield response
-            time.sleep(0.5)
+
 
 # Implement the PushLogService
 class PushLogService(kubearmor_pb2_grpc.PushLogServiceServicer):
